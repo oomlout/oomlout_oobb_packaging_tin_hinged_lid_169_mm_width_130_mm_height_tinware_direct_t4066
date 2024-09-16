@@ -46,7 +46,7 @@ def make_scad(**kwargs):
         p3 = copy.deepcopy(kwargs)
         #p3["thickness"] = 6
         part["kwargs"] = p3
-        part["name"] = "base"
+        part["name"] = "lid_insert"
         parts.append(part)
 
         
@@ -112,7 +112,64 @@ def get_base(thing, **kwargs):
         p3["shape"] = f"oobb_slice"
         #p3["m"] = "#"
         oobb_base.append_full(thing,**p3)
+
+def get_lid_insert(thing, **kwargs):
+
+    depth = kwargs.get("thickness", 4)
+    prepare_print = kwargs.get("prepare_print", False)
+
+    pos = kwargs.get("pos", [0, 0, 0])
+    #pos = copy.deepcopy(pos)
+    #pos[2] += -20
+
+    wid_total = 125
+    hei_total = 164
+    dep_total = 4
+    dep_full = 1
+
+    #add plate
+    p3 = copy.deepcopy(kwargs)
+    p3["type"] = "p"
+    p3["shape"] = f"oobb_plate"    
+    p3["depth"] = depth
+    #p3["m"] = "#"
+    pos1 = copy.deepcopy(pos)         
+    p3["pos"] = pos1
+    oobb_base.append_full(thing,**p3)
+    #add holes
+    p3 = copy.deepcopy(kwargs)
+    p3["type"] = "p"
+    p3["shape"] = f"oobb_holes"
+    p3["both_holes"] = True  
+    p3["depth"] = depth
+    p3["holes"] = "perimeter"
+    #p3["m"] = "#"
+    pos1 = copy.deepcopy(pos)         
+    p3["pos"] = pos1
+    oobb_base.append_full(thing,**p3)
+
+    if prepare_print:
+        #put into a rotation object
+        components_second = copy.deepcopy(thing["components"])
+        return_value_2 = {}
+        return_value_2["type"]  = "rotation"
+        return_value_2["typetype"]  = "p"
+        pos1 = copy.deepcopy(pos)
+        pos1[0] += 50
+        return_value_2["pos"] = pos1
+        return_value_2["rot"] = [180,0,0]
+        return_value_2["objects"] = components_second
+        
+        thing["components"].append(return_value_2)
+
     
+        #add slice # top
+        p3 = copy.deepcopy(kwargs)
+        p3["type"] = "n"
+        p3["shape"] = f"oobb_slice"
+        #p3["m"] = "#"
+        oobb_base.append_full(thing,**p3)
+
 ###### utilities
 
 
